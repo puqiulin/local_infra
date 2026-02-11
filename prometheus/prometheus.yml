@@ -56,6 +56,9 @@ scrape_configs:
           - https://grafana.sprite3366.com
           - https://wedding.sprite3366.com
           - https://sprite3366.com
+          - https://gdgsdl.com
+          - https://gdgsdl.cn
+          - https://guangshencable.com
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
