@@ -43,9 +43,30 @@ scrape_configs:
     static_configs:
       - targets: ["cadvisor:8080"]
 
+  - job_name: seaweedfs-master
+    static_configs:
+      - targets: ["seaweedfs-master:9324"]
+
+  - job_name: seaweedfs-volume
+    static_configs:
+      - targets: ["seaweedfs-volume:9325"]
+
+  - job_name: seaweedfs-filer
+    static_configs:
+      - targets: ["seaweedfs-filer:9326"]
+
   - job_name: blackbox_exporter
     static_configs:
       - targets: ["blackbox_exporter:9115"]
+
+  - job_name: kafka_exporter
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+
+  - job_name: jenkins
+    metrics_path: /prometheus/
+    static_configs:
+      - targets: ["jenkins:8085"]
 
   - job_name: blackbox
     metrics_path: /probe

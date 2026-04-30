@@ -128,8 +128,8 @@ services:
       - local-infra
 
   # etcd:
-  #   image: bitnami/etcd:latest
-  #   platform: linux/amd64
+  #   image: bitnami/etcd:3.5
+  #   # platform: linux/amd64
   #   container_name: etcd
   #   restart: unless-stopped
   #   environment:
@@ -140,6 +140,7 @@ services:
   #     ETCD_INITIAL_ADVERTISE_PEER_URLS: "http://etcd:2380"
   #     ETCD_INITIAL_CLUSTER: "default=http://etcd:2380"
   #     ETCD_DATA_DIR: "/bitnami/etcd/data"
+  #     ETCD_ENABLE_V2: "true"
   #   ports:
   #     - "2379:2379"
   #     - "2380:2380"
@@ -147,6 +148,54 @@ services:
   #     - etcd_data:/bitnami/etcd
   #   networks:
   #     - local-infra
+
+  seaweedfs-master:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-master
+    restart: unless-stopped
+    command: master -ip=seaweedfs-master -port=9333 -metricsPort=9324
+    ports:
+      - "9333:9333"
+      - "9324:9324"
+    volumes:
+      - seaweedfs_master:/data
+    networks:
+      - local-infra
+
+  seaweedfs-volume:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-volume
+    restart: unless-stopped
+    command: volume -mserver=seaweedfs-master:9333 -port=8082 -ip=seaweedfs-volume -max=100 -metricsPort=9325
+    ports:
+      - "8082:8082"
+      - "9325:9325"
+    volumes:
+      - seaweedfs_volume:/data
+    depends_on:
+      - seaweedfs-master
+    networks:
+      - local-infra
+
+  seaweedfs-filer:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs-filer
+    restart: unless-stopped
+    entrypoint: /etc/seaweedfs/filer-entrypoint.sh
+    environment:
+      SEAWEEDFS_S3_ACCESS_KEY: ${SEAWEEDFS_S3_ACCESS_KEY}
+      SEAWEEDFS_S3_SECRET_KEY: ${SEAWEEDFS_S3_SECRET_KEY}
+    ports:
+      - "8888:8888"
+      - "8333:8333"
+      - "9326:9326"
+    volumes:
+      - ./seaweedfs/filer-entrypoint.sh:/etc/seaweedfs/filer-entrypoint.sh:ro
+    depends_on:
+      - seaweedfs-master
+      - seaweedfs-volume
+    networks:
+      - local-infra
 
   postgres_exporter:
     image: prometheuscommunity/postgres-exporter:latest
@@ -191,6 +240,73 @@ services:
     networks:
       - local-infra
 
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    ports:
+      - "29092:29092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - local-infra
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka_exporter
+    restart: unless-stopped
+    command: ["--kafka.server=kafka:9092"]
+    ports:
+      - "9308:9308"
+    depends_on:
+      - kafka
+    networks:
+      - local-infra
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka_ui
+    restart: unless-stopped
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    ports:
+      - "8084:8080"
+    depends_on:
+      - kafka
+    networks:
+      - local-infra
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: unless-stopped
+    environment:
+      JENKINS_OPTS: "--httpPort=8085"
+      JAVA_OPTS: >-
+        -Djenkins.install.runSetupWizard=false
+    ports:
+      - "8085:8085"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+    networks:
+      - local-infra
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: cadvisor
@@ -229,4 +345,12 @@ volumes:
   promtail_positions:
     driver: local
   etcd_data:
+    driver: local
+  seaweedfs_master:
+    driver: local
+  seaweedfs_volume:
+    driver: local
+  kafka_data:
+    driver: local
+  jenkins_data:
     driver: local
