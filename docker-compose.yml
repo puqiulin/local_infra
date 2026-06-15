@@ -353,6 +353,36 @@ services:
     networks:
       - local-infra
 
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    ports:
+      - "8096:8096"
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      JELLYFIN_PublishedServerUrl: https://jellyfin.sprite3366.com
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - ${MEDIA_PATH:-/Users/apple/work/videos}:/media:ro
+    networks:
+      - local-infra
+
+  jellyfin-exporter:
+    image: rebelcore/jellyfin-exporter:latest
+    container_name: jellyfin_exporter
+    restart: unless-stopped
+    command:
+      - "--jellyfin.address=http://jellyfin:8096"
+      - "--jellyfin.token=${JELLYFIN_TOKEN}"
+    ports:
+      - "9594:9594"
+    depends_on:
+      - jellyfin
+    networks:
+      - local-infra
+
 networks:
   local-infra:
     name: local-infra
@@ -382,4 +412,8 @@ volumes:
   jenkins_data:
     driver: local
   portainer_data:
+    driver: local
+  jellyfin_config:
+    driver: local
+  jellyfin_cache:
     driver: local
