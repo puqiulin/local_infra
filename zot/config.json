@@ -1,0 +1,31 @@
+{
+  "distSpecVersion": "1.0.1",
+  "storage": {
+    "rootDirectory": "/var/lib/registry",
+    "dedupe": true,
+    "gc": true,
+    "gcDelay": "1h",
+    "gcInterval": "24h"
+  },
+  "http": {
+    "address": "0.0.0.0",
+    "port": "5000"
+  },
+  "log": {
+    "level": "info"
+  },
+  "extensions": {
+    "metrics": {
+      "enable": true,
+      "prometheus": {
+        "path": "/metrics"
+      }
+    },
+    "search": {
+      "enable": true
+    },
+    "ui": {
+      "enable": true
+    }
+  }
+}

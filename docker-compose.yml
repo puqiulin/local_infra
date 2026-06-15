@@ -307,6 +307,33 @@ services:
     networks:
       - local-infra
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    command:
+      - --admin-password=${PORTAINER_ADMIN_PASSWORD_HASH}
+    ports:
+      - "9443:9443"
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - local-infra
+
+  zot:
+    image: ghcr.io/project-zot/zot:latest
+    container_name: zot
+    restart: unless-stopped
+    ports:
+      - "8086:5000"
+    volumes:
+      - ./zot/config.json:/etc/zot/config.json:ro
+      - ./zot/data:/var/lib/registry
+    networks:
+      - local-infra
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: cadvisor
@@ -353,4 +380,6 @@ volumes:
   kafka_data:
     driver: local
   jenkins_data:
+    driver: local
+  portainer_data:
     driver: local
