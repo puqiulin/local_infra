@@ -63,6 +63,10 @@ scrape_configs:
     static_configs:
       - targets: ["kafka-exporter:9308"]
 
+  - job_name: jellyfin_exporter
+    static_configs:
+      - targets: ["jellyfin-exporter:9594"]
+
   - job_name: jenkins
     metrics_path: /prometheus/
     static_configs:
@@ -86,6 +90,7 @@ scrape_configs:
           - https://gdgsdl.cn
           - https://guangshencable.com
           - https://cngscable.com
+          - https://jellyfin.sprite3366.com
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
