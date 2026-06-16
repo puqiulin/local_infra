@@ -68,19 +68,18 @@ services:
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/uptime_kuma.key:/etc/prometheus/uptime_kuma.key:ro
     networks:
       - local-infra
 
-  blackbox_exporter:
-    image: prom/blackbox-exporter:latest
-    container_name: blackbox_exporter
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime_kuma
     restart: unless-stopped
-    command:
-      - "--config.file=/etc/blackbox_exporter/config.yml"
     ports:
-      - "9115:9115"
+      - "3001:3001"
     volumes:
-      - ./prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+      - uptime_kuma_data:/app/data
     networks:
       - local-infra
 
@@ -399,4 +398,6 @@ volumes:
   jellyfin_config:
     driver: local
   jellyfin_cache:
+    driver: local
+  uptime_kuma_data:
     driver: local

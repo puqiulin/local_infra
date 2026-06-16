@@ -55,9 +55,12 @@ scrape_configs:
     static_configs:
       - targets: ["seaweedfs-filer:9326"]
 
-  - job_name: blackbox_exporter
+  - job_name: uptime_kuma
+    metrics_path: /metrics
+    basic_auth:
+      password_file: /etc/prometheus/uptime_kuma.key
     static_configs:
-      - targets: ["blackbox_exporter:9115"]
+      - targets: ["uptime-kuma:3001"]
 
   - job_name: kafka_exporter
     static_configs:
@@ -76,27 +79,3 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["zot:5000"]
-
-  - job_name: blackbox
-    metrics_path: /probe
-    params:
-      module: [http_2xx]
-    static_configs:
-      - targets:
-          - https://grafana.sprite3366.com
-          - https://wedding.sprite3366.com
-          - https://sprite3366.com
-          - https://gdgsdl.com
-          - https://gdgsdl.cn
-          - https://guangshencable.com
-          - https://cngscable.com
-          - https://jellyfin.sprite3366.com
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - source_labels: [__param_target]
-        target_label: target
-      - target_label: __address__
-        replacement: blackbox_exporter:9115
