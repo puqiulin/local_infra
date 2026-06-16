@@ -45,7 +45,7 @@ services:
       GF_SERVER_PROTOCOL: ${GF_SERVER_PROTOCOL}
       GF_SERVER_SERVE_FROM_SUB_PATH: "false"
     ports:
-      - "3002:3000"
+      - "3003:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
