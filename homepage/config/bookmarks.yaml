@@ -1,0 +1,7 @@
+- Infrastructure:
+    - Repository:
+        - icon: github.png
+          href: https://github.com/puqiulin/local_infra
+    - FRP Server:
+        - icon: mdi-server-network
+          href: http://8.137.169.225
