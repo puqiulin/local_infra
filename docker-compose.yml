@@ -24,11 +24,69 @@ services:
     image: redis:latest
     container_name: redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - local-infra
+
+  nextcloud-db:
+    image: mariadb:11.4
+    container_name: nextcloud_db
+    restart: unless-stopped
+    command: ["--transaction-isolation=READ-COMMITTED", "--binlog-format=ROW"]
+    environment:
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?NEXTCLOUD_DB_PASSWORD must be set}
+      MYSQL_ROOT_PASSWORD: ${NEXTCLOUD_DB_ROOT_PASSWORD:?NEXTCLOUD_DB_ROOT_PASSWORD must be set}
+    volumes:
+      - nextcloud_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - local-infra
+
+  nextcloud:
+    image: nextcloud:stable-apache
+    container_name: nextcloud
+    restart: unless-stopped
+    environment:
+      MYSQL_HOST: nextcloud-db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?NEXTCLOUD_DB_PASSWORD must be set}
+      REDIS_HOST: redis
+      REDIS_HOST_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS:-localhost 127.0.0.1 8.137.169.225}
+    ports:
+      - "127.0.0.1:8087:80"
+    volumes:
+      - nextcloud_data:/var/www/html
+    depends_on:
+      nextcloud-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - local-infra
+
+  nextcloud-cron:
+    image: nextcloud:stable-apache
+    container_name: nextcloud_cron
+    restart: unless-stopped
+    entrypoint: /cron.sh
+    volumes:
+      - nextcloud_data:/var/www/html
+    depends_on:
+      - nextcloud
     networks:
       - local-infra
 
@@ -306,6 +364,18 @@ services:
     networks:
       - local-infra
 
+  portainer:
+    image: portainer/portainer-ce:lts
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - local-infra
+
   zot:
     image: ghcr.io/project-zot/zot:latest
     container_name: zot
@@ -365,5 +435,11 @@ volumes:
     driver: local
   jenkins_data:
     driver: local
+  portainer_data:
+    driver: local
   uptime_kuma_data:
+    driver: local
+  nextcloud_db_data:
+    driver: local
+  nextcloud_data:
     driver: local
