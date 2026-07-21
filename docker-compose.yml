@@ -35,6 +35,7 @@ services:
       - local-infra
 
   nextcloud-db:
+    profiles: ["nextcloud-mariadb-rollback"]
     image: mariadb:11.4
     container_name: nextcloud_db
     restart: unless-stopped
@@ -59,19 +60,20 @@ services:
     container_name: nextcloud
     restart: unless-stopped
     environment:
-      MYSQL_HOST: nextcloud-db
-      MYSQL_DATABASE: nextcloud
-      MYSQL_USER: nextcloud
-      MYSQL_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?NEXTCLOUD_DB_PASSWORD must be set}
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?NEXTCLOUD_DB_PASSWORD must be set}
       REDIS_HOST: redis
       REDIS_HOST_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
       NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS:-localhost 127.0.0.1 8.137.169.225}
+      PHP_UPLOAD_LIMIT: 1024G
     ports:
       - "127.0.0.1:8087:80"
     volumes:
       - nextcloud_data:/var/www/html
     depends_on:
-      nextcloud-db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_started
