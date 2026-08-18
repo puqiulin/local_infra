@@ -1,0 +1,221 @@
+{
+  "annotations": {"list": [{"builtIn": 1, "datasource": {"type": "grafana", "uid": "-- Grafana --"}, "enable": true, "hide": true, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard"}]},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 100,
+      "panels": [],
+      "title": "Infrastructure health",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Host CPU utilization from node-exporter. Sustained values over 80% deserve investigation.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 1, "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 70}, {"color": "red", "value": 85}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 5, "w": 4, "x": 0, "y": 1},
+      "id": 1,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[$__rate_interval])))", "legendFormat": "{{instance}}", "refId": "A"}],
+      "title": "Host CPU",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Host memory in active use, excluding reclaimable cache as reported by node-exporter.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 1, "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 75}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 5, "w": 4, "x": 4, "y": 1},
+      "id": 2,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "{{instance}}", "refId": "A"}],
+      "title": "Host memory",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Root filesystem utilization. The query excludes virtual and container filesystems.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 1, "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 75}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 5, "w": 4, "x": 8, "y": 1},
+      "id": 3,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"})", "legendFormat": "{{instance}}", "refId": "A"}],
+      "title": "Host root filesystem",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Number of Prometheus scrape targets currently returning an error. This includes intentionally configured but stopped optional services.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 5, "w": 4, "x": 12, "y": 1},
+      "id": 4,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"expr": "count(up == 0)", "legendFormat": "", "refId": "A"}],
+      "title": "Scrape targets down",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Docker containers observed by cAdvisor. This is a quick check that container telemetry is available.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}, "overrides": []},
+      "gridPos": {"h": 5, "w": 4, "x": 16, "y": 1},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"expr": "count(container_last_seen{image!=\"\",container_label_com_docker_compose_service!=\"\"})", "legendFormat": "", "refId": "A"}],
+      "title": "Observed services",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "PostgreSQL exporter availability. A value of 1 means the exporter can collect database metrics.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "decimals": 0, "mappings": [{"options": {"0": {"color": "red", "text": "Down"}, "1": {"color": "green", "text": "Up"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 5, "w": 4, "x": 20, "y": 1},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"expr": "up{job=\"postgres_exporter\"}", "legendFormat": "", "refId": "A"}],
+      "title": "PostgreSQL exporter",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 6},
+      "id": 101,
+      "panels": [],
+      "title": "Capacity trends",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 12, "gradientMode": "none", "hideFrom": {"legend": false, "tooltip": false, "viz": false}, "lineInterpolation": "smooth", "lineWidth": 1, "pointSize": 5, "scaleDistribution": {"type": "linear"}, "showPoints": "never", "spanNulls": false, "stacking": {"group": "A", "mode": "none"}, "thresholdsStyle": {"mode": "off"}}, "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 70}, {"color": "red", "value": 85}]}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 7},
+      "id": 7,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[$__rate_interval])))", "legendFormat": "CPU", "refId": "A"}, {"expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "Memory", "refId": "B"}],
+      "title": "Host CPU and memory utilization",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 12, "lineInterpolation": "smooth", "lineWidth": 1, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 7},
+      "id": 8,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "node_memory_MemAvailable_bytes", "legendFormat": "Available memory", "refId": "A"}, {"expr": "node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"}", "legendFormat": "Root filesystem free", "refId": "B"}],
+      "title": "Available host capacity",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 15},
+      "id": 102,
+      "panels": [],
+      "title": "Docker service resources",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "CPU consumed by each selected Compose service. CPU can exceed 100% when a service uses more than one core.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": true, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 1, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "unit": "percent"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 16},
+      "id": 9,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{image!=\"\",container_label_com_docker_compose_service=~\"$service\"}[$__rate_interval])) * 100", "legendFormat": "{{container_label_com_docker_compose_service}}", "refId": "A"}],
+      "title": "CPU by service",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Working-set memory is the most useful cAdvisor memory signal for identifying a growing or oversized container.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 1, "showPoints": "never", "stacking": {"group": "A", "mode": "normal"}}, "unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 16},
+      "id": 10,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (container_label_com_docker_compose_service) (container_memory_working_set_bytes{image!=\"\",container_label_com_docker_compose_service=~\"$service\"})", "legendFormat": "{{container_label_com_docker_compose_service}}", "refId": "A"}],
+      "title": "Memory by service",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 1, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "unit": "bps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "id": 11,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (container_label_com_docker_compose_service) (rate(container_network_receive_bytes_total{image!=\"\",container_label_com_docker_compose_service=~\"$service\"}[$__rate_interval])) * 8", "legendFormat": "{{container_label_com_docker_compose_service}} receive", "refId": "A"}, {"expr": "sum by (container_label_com_docker_compose_service) (rate(container_network_transmit_bytes_total{image!=\"\",container_label_com_docker_compose_service=~\"$service\"}[$__rate_interval])) * 8", "legendFormat": "{{container_label_com_docker_compose_service}} transmit", "refId": "B"}],
+      "title": "Network traffic by service",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "description": "Use this table to identify the biggest service resource consumers at a glance.",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "custom": {"align": "auto", "cellOptions": {"type": "auto"}, "inspect": false}, "unit": "bytes"}, "overrides": [{"matcher": {"id": "byName", "options": "Value #A"}, "properties": [{"id": "displayName", "value": "Working-set memory"}]}, {"matcher": {"id": "byName", "options": "Value #B"}, "properties": [{"id": "displayName", "value": "CPU"}, {"id": "unit", "value": "percent"}]}]},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+      "id": 12,
+      "options": {"cellHeight": "sm", "showHeader": true, "sortBy": [{"desc": true, "displayName": "Working-set memory"}]},
+      "targets": [{"expr": "sum by (container_label_com_docker_compose_service) (container_memory_working_set_bytes{image!=\"\",container_label_com_docker_compose_service=~\"$service\"})", "format": "table", "instant": true, "refId": "A"}, {"expr": "sum by (container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{image!=\"\",container_label_com_docker_compose_service=~\"$service\"}[$__rate_interval])) * 100", "format": "table", "instant": true, "refId": "B"}],
+      "title": "Current service usage",
+      "transformations": [{"id": "joinByLabels", "options": {"value": "container_label_com_docker_compose_service"}}],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 33},
+      "id": 103,
+      "panels": [],
+      "title": "Service signals and logs",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 1, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 34},
+      "id": 13,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "pg_stat_database_numbackends", "legendFormat": "PostgreSQL connections", "refId": "A"}, {"expr": "redis_connected_clients", "legendFormat": "Redis clients", "refId": "B"}],
+      "title": "Database client connections",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${datasource}"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 1, "showPoints": "never", "stacking": {"group": "A", "mode": "none"}}, "unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 34},
+      "id": 14,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "redis_memory_used_bytes", "legendFormat": "Redis used memory", "refId": "A"}, {"expr": "pg_database_size_bytes", "legendFormat": "PostgreSQL database size", "refId": "B"}],
+      "title": "Database storage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "${logs}"},
+      "description": "Live Docker logs from the selected Compose service. Use the service filter to narrow the stream.",
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "cellOptions": {"type": "auto"}, "inspect": false}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 34},
+      "id": 15,
+      "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyJSON": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+      "targets": [{"expr": "{compose_service=~\"$service\"}", "refId": "A"}],
+      "title": "Service logs",
+      "type": "logs"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["docker", "infrastructure", "local-infra", "resources"],
+  "templating": {
+    "list": [
+      {"current": {"selected": false, "text": "Prometheus", "value": "Prometheus"}, "hide": 0, "includeAll": false, "label": "Metrics source", "multi": false, "name": "datasource", "options": [], "query": "prometheus", "refresh": 1, "regex": "", "skipUrlSync": false, "type": "datasource"},
+      {"current": {"selected": false, "text": "Loki", "value": "Loki"}, "hide": 0, "includeAll": false, "label": "Logs source", "multi": false, "name": "logs", "options": [], "query": "loki", "refresh": 1, "regex": "", "skipUrlSync": false, "type": "datasource"},
+      {"allValue": ".*", "current": {"selected": true, "text": "All", "value": "$__all"}, "datasource": {"type": "prometheus", "uid": "${datasource}"}, "definition": "label_values(container_last_seen{image!=\"\",container_label_com_docker_compose_service!=\"\"}, container_label_com_docker_compose_service)", "hide": 0, "includeAll": true, "label": "Service", "multi": true, "name": "service", "options": [], "query": {"query": "label_values(container_last_seen{image!=\"\",container_label_com_docker_compose_service!=\"\"}, container_label_com_docker_compose_service)", "refId": "StandardVariableQuery"}, "refresh": 2, "regex": "", "skipUrlSync": false, "sort": 1, "type": "query"}
+    ]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Local Infrastructure Overview",
+  "uid": "local-infra-overview",
+  "version": 1,
+  "weekStart": ""
+}

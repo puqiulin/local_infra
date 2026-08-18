@@ -1,0 +1,12 @@
+[[proxies]]
+name = "homepage"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 3001
+remotePort = 7010
+
+healthCheck.type = "http"
+healthCheck.path = "/"
+healthCheck.intervalSeconds = 10
+healthCheck.maxFailed = 3
+healthCheck.timeoutSeconds = 3

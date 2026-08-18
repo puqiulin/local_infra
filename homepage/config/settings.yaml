@@ -1,0 +1,31 @@
+title: Local Infrastructure
+description: Services running in the local Docker Compose infrastructure
+theme: dark
+color: slate
+headerStyle: clean
+statusStyle: dot
+showStats: true
+disableIndexing: true
+
+layout:
+  Applications:
+    style: row
+    columns: 4
+  Management:
+    style: row
+    columns: 3
+  Data Services:
+    style: row
+    columns: 4
+  Observability:
+    style: row
+    columns: 4
+  Storage:
+    style: row
+    columns: 3
+  Exporters:
+    style: row
+    columns: 4
+  Supporting Services:
+    style: row
+    columns: 3

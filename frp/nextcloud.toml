@@ -1,0 +1,12 @@
+[[proxies]]
+name = "nextcloud"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 8087
+remotePort = 7008
+
+healthCheck.type = "http"
+healthCheck.path = "/status.php"
+healthCheck.intervalSeconds = 10
+healthCheck.maxFailed = 3
+healthCheck.timeoutSeconds = 3

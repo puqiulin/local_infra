@@ -1,0 +1,11 @@
+[[proxies]]
+name = "portainer"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 9443
+remotePort = 7009
+
+healthCheck.type = "tcp"
+healthCheck.intervalSeconds = 10
+healthCheck.maxFailed = 3
+healthCheck.timeoutSeconds = 3

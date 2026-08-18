@@ -1,0 +1,162 @@
+- Applications:
+    - Nextcloud:
+        icon: nextcloud.png
+        href: http://8.137.169.225:7008
+        description: File sync and collaboration via FRP
+        server: local
+        container: nextcloud
+    - Kafka UI:
+        icon: kafka.png
+        href: http://localhost:8084
+        description: Kafka cluster administration
+        server: local
+        container: kafka_ui
+    - Jenkins:
+        icon: jenkins.png
+        href: http://localhost:8085
+        description: Continuous integration server
+        server: local
+        container: jenkins
+    - Zot Registry:
+        icon: zot.png
+        href: http://localhost:8086
+        description: OCI container registry
+        server: local
+        container: zot
+
+- Management:
+    - Homepage:
+        icon: homepage.png
+        href: http://8.137.169.225:7010
+        description: Infrastructure service dashboard via FRP
+        server: local
+        container: homepage
+    - Portainer:
+        icon: portainer.png
+        href: https://8.137.169.225:7009
+        description: Docker management via FRP
+        server: local
+        container: portainer
+    - Homepage Docker Proxy:
+        icon: docker.png
+        description: Read-only Docker API proxy
+        server: local
+        container: homepage_docker_proxy
+
+- Data Services:
+    - PostgreSQL:
+        icon: postgresql.png
+        description: PostgreSQL with pgvector
+        server: local
+        container: postgres
+    - Redis:
+        icon: redis.png
+        description: Persistent authenticated cache
+        server: local
+        container: redis
+    - Nextcloud Database:
+        icon: mariadb.png
+        description: MariaDB database for Nextcloud
+        server: local
+        container: nextcloud_db
+    - Kafka:
+        icon: kafka.png
+        description: Event streaming broker
+        server: local
+        container: kafka
+
+- Observability:
+    - Grafana:
+        icon: grafana.png
+        href: http://8.137.169.225:7004
+        description: Dashboards and alerting via FRP
+        server: local
+        container: grafana
+    - Prometheus:
+        icon: prometheus.png
+        href: http://localhost:9090
+        description: Metrics collection and queries
+        server: local
+        container: prometheus
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: http://localhost:3002
+        description: Endpoint availability monitoring
+        server: local
+        container: uptime_kuma
+    - Loki:
+        icon: loki.png
+        href: http://localhost:3100/ready
+        description: Centralized log storage
+        server: local
+        container: loki
+    - Promtail:
+        icon: loki.png
+        href: http://localhost:9080/targets
+        description: Docker log collection agent
+        server: local
+        container: promtail
+    - cAdvisor:
+        icon: cadvisor.png
+        href: http://localhost:8080
+        description: Container resource metrics
+        server: local
+        container: cadvisor
+
+- Storage:
+    - SeaweedFS Master:
+        icon: mdi-server-network
+        href: http://localhost:9333
+        description: SeaweedFS topology coordinator
+        server: local
+        container: seaweedfs-master
+    - SeaweedFS Volume:
+        icon: mdi-database
+        href: http://localhost:8082
+        description: SeaweedFS volume server
+        server: local
+        container: seaweedfs-volume
+    - SeaweedFS Filer:
+        icon: mdi-folder-network
+        href: http://8.137.169.225:7007
+        description: SeaweedFS file interface via FRP
+        server: local
+        container: seaweedfs-filer
+
+- Exporters:
+    - PostgreSQL Exporter:
+        icon: prometheus.png
+        href: http://localhost:9187/metrics
+        description: PostgreSQL metrics
+        server: local
+        container: postgres_exporter
+    - Redis Exporter:
+        icon: prometheus.png
+        href: http://localhost:9121/metrics
+        description: Redis metrics
+        server: local
+        container: redis_exporter
+    - Node Exporter:
+        icon: prometheus.png
+        href: http://localhost:9100/metrics
+        description: Host metrics
+        server: local
+        container: node_exporter
+    - Kafka Exporter:
+        icon: prometheus.png
+        href: http://localhost:9308/metrics
+        description: Kafka metrics
+        server: local
+        container: kafka_exporter
+
+- Supporting Services:
+    - Nextcloud Cron:
+        icon: nextcloud.png
+        description: Scheduled Nextcloud background jobs
+        server: local
+        container: nextcloud_cron
+    - Log Generator:
+        icon: mdi-text-box-outline
+        description: Sample log producer for Loki
+        server: local
+        container: log-generator

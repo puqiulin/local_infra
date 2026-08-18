@@ -1,0 +1,3 @@
+local:
+  host: homepage-docker-proxy
+  port: 2375
