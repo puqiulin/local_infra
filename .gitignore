@@ -1,6 +1,7 @@
 .env
 zot/data/
 prometheus/uptime_kuma.key
+.DS_Store
 
 
 #Ignore vscode AI rules
