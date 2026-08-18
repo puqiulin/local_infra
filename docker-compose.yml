@@ -96,7 +96,28 @@ services:
     networks:
       - local-infra
 
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - alloy_data:/var/lib/alloy/data
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+    networks:
+      - local-infra
+
   promtail:
+    profiles: ["legacy-promtail"]
     image: grafana/promtail:latest
     container_name: promtail
     restart: unless-stopped
@@ -122,7 +143,7 @@ services:
       SERVICE_NAME: log-generator
       LOG_INTERVAL: "2"
     depends_on:
-      - promtail
+      - alloy
     networks:
       - local-infra
 
@@ -354,6 +375,8 @@ volumes:
   loki_data:
     driver: local
   promtail_positions:
+    driver: local
+  alloy_data:
     driver: local
   etcd_data:
     driver: local
