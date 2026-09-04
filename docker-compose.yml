@@ -92,6 +92,33 @@ services:
     networks:
       - local-infra
 
+  new-api:
+    image: calciumion/new-api:latest
+    container_name: new-api
+    restart: unless-stopped
+    command: --log-dir /app/logs
+    environment:
+      TZ: Asia/Shanghai
+      SESSION_SECRET: ${NEW_API_SESSION_SECRET:?NEW_API_SESSION_SECRET must be set}
+      CRYPTO_SECRET: ${NEW_API_CRYPTO_SECRET:?NEW_API_CRYPTO_SECRET must be set}
+      TRUSTED_PROXIES: none
+      ERROR_LOG_ENABLED: "true"
+      BATCH_UPDATE_ENABLED: "true"
+      NODE_NAME: beelink
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - new_api_data:/data
+      - new_api_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -q '\"success\":true'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - local-infra
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -497,4 +524,8 @@ volumes:
   nextcloud_db_data:
     driver: local
   nextcloud_data:
+    driver: local
+  new_api_data:
+    driver: local
+  new_api_logs:
     driver: local
